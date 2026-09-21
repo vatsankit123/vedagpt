@@ -1,0 +1,36 @@
+version: "3.9"
+
+# VedaGPT local development stack.
+# Provides Qdrant only — the FastAPI backend runs outside Docker.
+#
+# Commands:
+#   Start:  docker-compose up -d
+#   Stop:   docker-compose stop
+#   Logs:   docker-compose logs -f qdrant
+#   Reset (deletes all vector data): docker-compose down -v
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.9.4
+    container_name: vedagpt_qdrant
+    ports:
+      - "6333:6333"   # HTTP API (used by qdrant-client)
+      - "6334:6334"   # gRPC (optional; not used by default)
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      # No authentication required for local development.
+      # For production Qdrant Cloud, set QDRANT__SERVICE__API_KEY and
+      # configure QDRANT_API_KEY in your .env file.
+      QDRANT__LOG_LEVEL: INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  qdrant_data:
+    name: vedagpt_qdrant_data
