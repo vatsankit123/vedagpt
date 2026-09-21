@@ -72,15 +72,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         default_top_k=settings.retrieval_top_k,
     )
 
-    # ── Generator (Claude) ───────────────────────────────────────────────────
-    if settings.anthropic_api_key:
+    # ── Generator (Gemini) ────────────────────────────────────────────
+    if settings.gemini_api_key:
         generator: GeneratorService | None = GeneratorService(
-            api_key=settings.anthropic_api_key,
-            model=settings.anthropic_model,
+            api_key=settings.gemini_api_key,
+            model=settings.gemini_model,
         )
     else:
         logger.warning(
-            "ANTHROPIC_API_KEY is not set.  "
+            "GEMINI_API_KEY is not set.  "
             "The /api/v1/chat endpoint will return 503 for generation requests."
         )
         generator = None

@@ -1,7 +1,7 @@
 """
 Shared pytest fixtures for VedaGPT tests.
 
-All external services (Qdrant, Anthropic Claude, sentence-transformers) are
+All external services (Qdrant, Google Gemini, sentence-transformers) are
 mocked so unit tests run without network access or paid API usage.
 """
 
@@ -16,7 +16,7 @@ from fastapi.testclient import TestClient
 
 # ── Force test environment before any app imports ─────────────────────────────
 os.environ.setdefault("APP_ENV", "test")
-os.environ.setdefault("ANTHROPIC_API_KEY", "test-key-not-real")
+os.environ.setdefault("GEMINI_API_KEY", "test-gemini-key-not-real")
 os.environ.setdefault("ALLOW_UNVERIFIED_DEMO_DATA", "true")
 os.environ.setdefault("QDRANT_URL", "http://localhost:6333")
 

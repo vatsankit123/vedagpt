@@ -36,10 +36,12 @@ class Settings(BaseSettings):
     # Do not use '*' in production.
     cors_allowed_origins: str = Field(default="http://localhost:3000,http://localhost:8000")
 
-    # ── Anthropic / Claude ────────────────────────────────────────────────────
-    anthropic_api_key: str = Field(default="")
-    # Default to a current stable model; override via env for your account.
-    anthropic_model: str = Field(default="claude-3-5-sonnet-20241022")
+    # ── Google Gemini ─────────────────────────────────────────────────────────
+    gemini_api_key: str = Field(default="")
+    # Gemini model identifier — confirm the exact name in your Google AI Studio
+    # account.  Do not hard-code an assumed "latest" alias.
+    # Example: gemini-2.0-flash, gemini-1.5-pro
+    gemini_model: str = Field(default="gemini-2.0-flash")
 
     # ── Embedding ─────────────────────────────────────────────────────────────
     # Supported providers: "sentence_transformers" | "openai" | "cohere"
@@ -85,9 +87,9 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def warn_missing_api_key(self) -> "Settings":
-        if self.app_env != "test" and not self.anthropic_api_key:
+        if self.app_env != "test" and not self.gemini_api_key:
             logger.warning(
-                "ANTHROPIC_API_KEY is not set.  "
+                "GEMINI_API_KEY is not set.  "
                 "The generation service will fail until it is provided."
             )
         return self
@@ -102,7 +104,7 @@ class Settings(BaseSettings):
         return {
             "app_name": self.app_name,
             "app_env": self.app_env,
-            "anthropic_model": self.anthropic_model,
+            "gemini_model": self.gemini_model,
             "embedding_provider": self.embedding_provider,
             "embedding_model": self.embedding_model,
             "embedding_dimension": self.embedding_dimension,
@@ -111,7 +113,7 @@ class Settings(BaseSettings):
             "retrieval_top_k": self.retrieval_top_k,
             "retrieval_score_threshold": self.retrieval_score_threshold,
             "allow_unverified_demo_data": self.allow_unverified_demo_data,
-            "anthropic_api_key_set": bool(self.anthropic_api_key),
+            "gemini_api_key_set": bool(self.gemini_api_key),
             "qdrant_api_key_set": bool(self.qdrant_api_key),
         }
 

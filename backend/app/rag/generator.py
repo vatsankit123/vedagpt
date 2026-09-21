@@ -1,14 +1,26 @@
 """
 LLM generation service.
 
-Calls Anthropic Claude with a strictly grounded system prompt.
+Calls Google Gemini with a strictly grounded system prompt.
 The LLM is NOT asked to produce citations; citations are built by
 citation_validator.py from Qdrant metadata.
+
+Provider abstraction:
+  GeneratorService is the single public class consumed by ChatService.
+  The Gemini SDK is imported lazily inside __init__ so the class can be
+  constructed and mocked in tests without the SDK installed.
 
 Prompt-injection mitigation:
   - Retrieved passages are passed as structured data inside XML tags.
   - The user question is passed separately and treated as untrusted input.
   - The system prompt explicitly forbids using external knowledge.
+
+Error handling:
+  - Missing API key            → RuntimeError at construction time.
+  - SDK not installed          → RuntimeError at construction time.
+  - Blocked / empty response   → logged, returns insufficient-evidence answer.
+  - Quota / network errors     → logged, re-raised as GenerationError so
+                                  ChatService can return a safe 503-style response.
 """
 
 from __future__ import annotations
@@ -61,6 +73,13 @@ INSUFFICIENT_SENTINEL = (
 )
 
 
+class GenerationError(Exception):
+    """Raised when the generation provider returns an unrecoverable error.
+
+    The message is safe to log internally but must NOT be forwarded to API users.
+    """
+
+
 def _build_context_block(passages: list[dict[str, Any]]) -> str:
     """Serialise retrieved passages into a structured XML block.
 
@@ -83,24 +102,33 @@ def _build_context_block(passages: list[dict[str, Any]]) -> str:
 
 
 class GeneratorService:
-    """Calls Claude with grounded context to produce an answer."""
+    """Calls Google Gemini with grounded context to produce an answer.
+
+    The Gemini SDK (google-genai) is imported lazily so the class can be
+    instantiated and mocked in tests without requiring a real SDK install.
+    ChatService must never import Gemini SDK classes directly.
+    """
 
     def __init__(self, api_key: str, model: str) -> None:
         if not api_key:
             raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set.  "
+                "GEMINI_API_KEY is not set.  "
                 "The generation service requires a valid API key."
             )
         try:
-            import anthropic  # type: ignore
+            import google.genai as genai  # type: ignore
+            import google.genai.types as _genai_types  # type: ignore
         except ImportError as exc:
             raise RuntimeError(
-                "anthropic package is not installed.  Run: pip install anthropic"
+                "google-genai package is not installed.  "
+                "Run: pip install google-genai"
             ) from exc
 
-        self._client = anthropic.Anthropic(api_key=api_key)
+        self._client = genai.Client(api_key=api_key)
         self._model = model
-        logger.info("GeneratorService initialised with model='%s'.", model)
+        # Cache the config class to avoid re-importing inside generate().
+        self._GenerateContentConfig = _genai_types.GenerateContentConfig
+        logger.info("GeneratorService initialised with Gemini model='%s'.", model)
 
     def generate(
         self,
@@ -111,33 +139,62 @@ class GeneratorService:
         """Generate a grounded answer from the supplied passages.
 
         Args:
-            question: The user's question (validated and sanitised by the API layer).
-            passages: Retrieved passages from Qdrant (not LLM-generated).
-            max_tokens: Maximum tokens in the response.
+            question:   The user's question (validated and sanitised by the API layer).
+            passages:   Retrieved passages from Qdrant (not LLM-generated).
+            max_tokens: Maximum output tokens.
 
         Returns:
             A tuple of (answer_text, is_grounded) where is_grounded is True
             unless the LLM returned the INSUFFICIENT_SENTINEL phrase.
+
+        Raises:
+            GenerationError: For unrecoverable provider errors (quota, auth, network).
+                             The caller must not forward the message to API users.
         """
         context_block = _build_context_block(passages)
 
-        user_message = (
+        # Combine system instructions + retrieved context + question into a
+        # single prompt string.  Gemini's generate_content accepts a plain
+        # string and treats the whole thing as the user turn.
+        full_prompt = (
+            f"{SYSTEM_PROMPT}\n\n"
             f"{context_block}\n\n"
             f"<question>{question}</question>"
         )
 
         logger.debug(
-            "Sending generation request to Claude model '%s'.", self._model
+            "Sending generation request to Gemini model '%s'.", self._model
         )
 
-        response = self._client.messages.create(
-            model=self._model,
-            max_tokens=max_tokens,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_message}],
-        )
+        try:
+            response = self._client.models.generate_content(
+                model=self._model,
+                contents=full_prompt,
+                config=self._GenerateContentConfig(
+                    max_output_tokens=max_tokens,
+                    temperature=0.2,  # Low temperature for factual grounding.
+                ),
+            )
+        except Exception as exc:
+            # Classify the exception type for logging without leaking SDK internals.
+            exc_type = type(exc).__name__
+            logger.error(
+                "Gemini generation failed (%s): %s", exc_type, exc
+            )
+            raise GenerationError(
+                f"Generation provider error ({exc_type}). "
+                "Check logs for details."
+            ) from exc
 
-        answer = response.content[0].text.strip()
+        # Handle blocked or empty responses.
+        answer = _extract_text(response)
+        if not answer:
+            logger.warning(
+                "Gemini returned an empty or blocked response for model '%s'.",
+                self._model,
+            )
+            return INSUFFICIENT_SENTINEL, False
+
         is_grounded = INSUFFICIENT_SENTINEL not in answer
 
         logger.debug(
@@ -146,3 +203,33 @@ class GeneratorService:
             len(answer),
         )
         return answer, is_grounded
+
+
+def _extract_text(response: Any) -> str:
+    """Safely extract text from a Gemini GenerateContentResponse.
+
+    Returns an empty string if the response is blocked, has no candidates,
+    or has no text parts.  Never raises an exception.
+    """
+    try:
+        # google-genai SDK: response.text is a convenience property that
+        # concatenates all text parts.  It raises if the response is blocked.
+        return (response.text or "").strip()
+    except Exception:
+        # Blocked content or missing parts — treat as empty.
+        pass
+
+    # Fallback: iterate candidates manually.
+    try:
+        candidates = response.candidates or []
+        parts = []
+        for candidate in candidates:
+            content = getattr(candidate, "content", None)
+            if content:
+                for part in getattr(content, "parts", []):
+                    text = getattr(part, "text", None)
+                    if text:
+                        parts.append(text)
+        return " ".join(parts).strip()
+    except Exception:
+        return ""

@@ -27,6 +27,6 @@ def test_health_does_not_expose_secrets(test_client):
     response = test_client.get("/health")
     body = response.text
     # Should not contain real API key patterns.
-    assert "sk-ant" not in body
-    assert "anthropic_api_key" not in body.lower()
+    assert "test-gemini-key" not in body
+    assert "gemini_api_key" not in body.lower()
     assert "qdrant_api_key" not in body.lower()

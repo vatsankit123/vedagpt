@@ -15,7 +15,7 @@ from app.rag.citation_validator import (
     build_citations_from_passages,
     validate_response_citations,
 )
-from app.rag.generator import GeneratorService
+from app.rag.generator import GenerationError, GeneratorService
 from app.rag.retriever import RetrieverService
 from app.schemas.chat import ChatResponse, SourceCitation
 
@@ -73,14 +73,24 @@ class ChatService:
                 message="Insufficient evidence in the indexed corpus.",
             )
 
-        # 4. Generate explanation using Claude (passes retrieved text, not raw IDs).
+        # 4. Generate explanation using Gemini (passes retrieved text, not raw IDs).
         try:
             answer_text, is_grounded = self._generator.generate(
                 question=normalized,
                 passages=retrieval.passages,
             )
+        except GenerationError as exc:
+            # Provider-level error (quota, auth, network).  The message is
+            # safe to log internally but must not be forwarded to API users.
+            logger.error("Generation failed (provider error): %s", exc)
+            return ChatResponse(
+                answer="The generation service is currently unavailable.  Please try again later.",
+                grounded=False,
+                sources=[],
+                message="Generation service error.",
+            )
         except Exception as exc:
-            logger.error("Generation failed: %s", exc)
+            logger.error("Generation failed (unexpected): %s", exc)
             return ChatResponse(
                 answer="The generation service is currently unavailable.  Please try again later.",
                 grounded=False,

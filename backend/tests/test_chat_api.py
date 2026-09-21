@@ -151,9 +151,8 @@ def test_api_key_not_in_chat_response(test_client):
         json={"question": "What is dharma?"},
     )
     body = response.text
-    assert "sk-ant" not in body
-    assert "test-key-not-real" not in body
-    assert "ANTHROPIC_API_KEY" not in body
+    assert "test-gemini-key-not-real" not in body
+    assert "GEMINI_API_KEY" not in body
 
 
 def test_response_has_no_stack_trace(test_client):
