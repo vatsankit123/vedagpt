@@ -43,3 +43,20 @@ backend/.cache/
 
 # ── Qdrant local storage (if running Qdrant without Docker) ───────────────────
 qdrant_storage/
+
+# ── Phase 2: Generated reports (large timestamped reports should not be committed) ──
+reports/corpus_validation_*.json
+reports/corpus_validation_*.md
+reports/retrieval_evaluation_*.json
+reports/retrieval_evaluation_*.md
+reports/ingestion_*.json
+reports/ingestion_*.md
+
+# ── Phase 2: Verified corpus files (contain licensed content - manage separately) ──
+backend/data/*.verified.json
+backend/data/*.normalized.json
+backend/data/*.raw.json
+
+# Keep templates and samples
+!backend/data/*.template.json
+!backend/data/*.sample.json

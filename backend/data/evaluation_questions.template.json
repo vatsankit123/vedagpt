@@ -1,0 +1,19 @@
+{
+  "_comment": "TEMPLATE for a single evaluation question. Do NOT add authoritative expected_document_ids without verified review.",
+  "id": "eval-001",
+  "question": "",
+  "category": "concept_retrieval",
+  "expected_document_ids": [],
+  "acceptable_document_ids": [],
+  "forbidden_document_ids": [],
+  "must_refuse": false,
+  "explicit_reference": false,
+  "expected_chapter": null,
+  "expected_verse": null,
+  "language": "English",
+  "difficulty": "medium",
+  "notes": "",
+  "review_status": "PENDING",
+  "reviewed_by": "",
+  "reviewed_date": ""
+}

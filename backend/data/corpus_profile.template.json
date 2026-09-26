@@ -1,0 +1,17 @@
+{
+  "_comment": "TEMPLATE — fill in verified chapter/verse counts and rename to corpus_profile.verified.json.",
+  "profile_id": "bhagavad-gita-edition-profile",
+  "scripture": "Bhagavad Gita",
+  "source_id": "replace-with-verified-source-id",
+  "expected_chapters": 18,
+  "expected_verse_counts": {
+    "_comment": "Leave empty until project owner has verified verse counts per edition.",
+    "_note": "Example: '2': 72, '3': 43  — but only add after verification."
+  },
+  "allow_numbering_variants": true,
+  "numbering_notes": "Verse numbering may differ by edition. Differences must be reviewed, not silently ignored.",
+  "profile_version": 1,
+  "review_status": "PENDING",
+  "reviewed_by": "",
+  "reviewed_date": ""
+}
