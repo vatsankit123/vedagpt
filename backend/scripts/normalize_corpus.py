@@ -69,7 +69,7 @@ def main() -> int:
         print(f"ERROR writing output: {exc}", file=sys.stderr)
         return 1
 
-    print(f"\u2713  Normalized {len(normalized)} records -> '{args.output}'")
+    print(f"OK: Normalized {len(normalized)} records -> '{args.output}'")
     return 0
 
 

@@ -1,33 +1,26 @@
 """
-Qdrant ingestion script — Phase 2.
+Qdrant ingestion script -- Phase 2.
 
 Improvements over Phase 1:
   - Stable point ID generation (deterministic UUID from record ID).
-  - Idempotent: new records are added, changed records updated, unchanged skipped.
-  - Dry-run mode (validates + plans but writes nothing).
+  - Idempotent: new records added, changed records updated, unchanged skipped.
+  - Dry-run mode: validates and plans without writing anything or loading models.
   - Source manifest and corpus profile validation.
-  - Versioned collection name.
   - JSON + Markdown ingestion report.
-  - Non-zero exit on production failure.
   - Configurable document construction strategy.
 
-Usage (PowerShell):
-    # Dry run:
-    python scripts\ingest_qdrant.py `
-        --corpus data\bhagavad_gita.verified.json `
-        --manifest data\source_manifest.verified.json `
-        --profile data\corpus_profile.verified.json `
-        --dry-run
+Usage::
+
+    # Dry run (no model download needed):
+    python scripts/ingest_qdrant.py --corpus data/bhagavad_gita.verified.json --dry-run
 
     # Actual ingestion:
-    python scripts\ingest_qdrant.py `
-        --corpus data\bhagavad_gita.verified.json `
-        --manifest data\source_manifest.verified.json `
-        --profile data\corpus_profile.verified.json
+    python scripts/ingest_qdrant.py --corpus data/bhagavad_gita.verified.json
+        --manifest data/source_manifest.verified.json
 
 Exit codes:
-    0 — success (or dry-run completed)
-    1 — failure
+    0 -- success (or dry-run completed)
+    1 -- failure
 """
 from __future__ import annotations
 
@@ -55,8 +48,6 @@ from app.corpus.errors import (
     ProvenanceValidationError,
     DocumentBuildError,
 )
-from app.rag.embeddings import get_embedding_provider
-from app.rag.vector_store import VectorStore
 
 
 def _stable_point_id(record_id: str) -> str:
@@ -64,11 +55,10 @@ def _stable_point_id(record_id: str) -> str:
     return str(_uuid.uuid5(_uuid.NAMESPACE_DNS, f"vedagpt.{record_id}"))
 
 
-def _fetch_existing_hashes(store: VectorStore, collection: str) -> dict[str, str]:
-    """Fetch document_id -> content_hash mapping from Qdrant for change detection."""
+def _fetch_existing_hashes(store, collection: str) -> dict[str, str]:
+    """Fetch document_id -> content_hash from Qdrant for idempotency check."""
     try:
         client = store._client
-        # Scroll through all points to get existing hashes.
         offset = None
         existing: dict[str, str] = {}
         while True:
@@ -107,10 +97,11 @@ def ingest(
     run_id = str(_uuid.uuid4())
     t_start = time.time()
     timestamp = datetime.now(timezone.utc).isoformat()
+    collection = settings.qdrant_collection
 
-    print(f"[{run_id[:8]}] Ingestion run starting  dry_run={dry_run}  strategy={document_strategy}")
+    print(f"[{run_id[:8]}] Ingestion run  dry_run={dry_run}  strategy={document_strategy}")
 
-    # ── Load corpus ────────────────────────────────────────────────────────────
+    # -- Load corpus -------------------------------------------------------
     try:
         records = load_corpus_file(corpus_path)
     except CorpusLoadError as exc:
@@ -118,7 +109,7 @@ def ingest(
         return 1
     print(f"  Loaded {len(records)} records from '{corpus_path}'")
 
-    # ── Load manifest ──────────────────────────────────────────────────────────
+    # -- Load manifest (optional) -----------------------------------------
     manifest = None
     if manifest_path:
         try:
@@ -127,13 +118,14 @@ def ingest(
                 str(manifest_path),
                 production=not allow_demo,
             )
-            print(f"  Manifest: source_id={manifest.source_id!r}  status={manifest.verification_status}")
+            print(f"  Manifest: source_id={manifest.source_id!r}  "
+                  f"status={manifest.verification_status}")
         except (SourceManifestError, LicenseValidationError, ProvenanceValidationError) as exc:
             print(f"ERROR in manifest: {exc}", file=sys.stderr)
             if not allow_demo:
                 return 1
 
-    # ── Load profile ───────────────────────────────────────────────────────────
+    # -- Load profile (optional) ------------------------------------------
     profile = None
     if profile_path:
         try:
@@ -143,7 +135,7 @@ def ingest(
         except Exception as exc:
             print(f"  WARNING: Could not load profile: {exc}")
 
-    # ── Validate corpus ────────────────────────────────────────────────────────
+    # -- Validate ---------------------------------------------------------
     print("  Validating records ...")
     result = validate_corpus_records(
         records=records,
@@ -152,57 +144,43 @@ def ingest(
         allow_demo=allow_demo,
         production=not allow_demo,
     )
-    errors = result["errors"]
-    warnings = result["warnings"]
-    for w in warnings:
-        print(f"  ⚠  {w}")
-    if errors:
-        for e in errors:
-            print(f"  ✗  {e}", file=sys.stderr)
+    for w in result["warnings"]:
+        print(f"  WARN: {w}")
+    if result["errors"]:
+        for e in result["errors"]:
+            print(f"  ERR: {e}", file=sys.stderr)
         print("Ingestion aborted: corpus validation failed.", file=sys.stderr)
         return 1
 
-    # ── Normalize records ──────────────────────────────────────────────────────
+    # -- Normalize --------------------------------------------------------
     normalized: list[dict] = []
     for rec in records:
         try:
             normalized.append(normalize_record(rec))
         except Exception as exc:
-            print(f"  ✗  Normalization failed for {rec.get('id')!r}: {exc}", file=sys.stderr)
+            print(f"  ERR: Normalization failed for {rec.get('id')!r}: {exc}",
+                  file=sys.stderr)
 
-    # ── Filter demo/unverified records ────────────────────────────────────────
+    # -- Filter demo/unverified records -----------------------------------
     if not allow_demo:
         before = len(normalized)
         normalized = [r for r in normalized
                       if r.get("copyright_status", "") not in PRODUCTION_REJECTED_STATUSES]
         dropped = before - len(normalized)
         if dropped:
-            print(f"  ⚠  Dropped {dropped} demo/unverified records (not for production).")
+            print(f"  WARN: Dropped {dropped} demo/unverified records.")
 
     if not normalized:
         print("No valid records to ingest after filtering.", file=sys.stderr)
         return 1
 
-    # ── Initialise embedder ────────────────────────────────────────────────────
-    print(f"  Initialising embedding provider '{settings.embedding_provider}' ...")
-    try:
-        embedder = get_embedding_provider(
-            provider=settings.embedding_provider,
-            model_name=settings.embedding_model,
-            dimension=settings.embedding_dimension,
-        )
-    except Exception as exc:
-        print(f"ERROR initialising embedder: {exc}", file=sys.stderr)
-        return 1
-
-    # ── Connect to Qdrant ──────────────────────────────────────────────────────
-    collection = settings.qdrant_collection
-    print(f"  Connecting to Qdrant: collection='{collection}' ...")
-
+    # -- DRY-RUN early exit (no model download, no Qdrant connection) ------
     if dry_run:
-        print("  DRY-RUN: no writes will be made.")
-        # Simulate plan.
-        total = len(normalized)
+        total = len(records)
+        plan_count = len(normalized)
+        duration = round(time.time() - t_start, 2)
+        print(f"  DRY-RUN: {plan_count} records would be ingested "
+              f"({total - plan_count} filtered).")
         summary = {
             "run_id": run_id,
             "timestamp": timestamp,
@@ -212,25 +190,41 @@ def ingest(
             "document_strategy": document_strategy,
             "embedding_model": settings.embedding_model,
             "source_id": manifest.source_id if manifest else "",
-            "added": total,  # All planned as 'would add' in dry run.
+            "added": plan_count,
             "updated": 0,
             "unchanged": 0,
-            "rejected": len(records) - total,
+            "rejected": total - plan_count,
             "failed": 0,
-            "total": len(records),
-            "duration_seconds": round(time.time() - t_start, 2),
-            "note": "DRY-RUN: no data was written.",
+            "total": total,
+            "duration_seconds": duration,
+            "note": "DRY-RUN: no data was written, no model was loaded.",
         }
-        print(f"  DRY-RUN plan: {total} records would be ingested.")
         if report_dir:
             try:
                 j, m = generate_ingestion_reports(summary, str(report_dir))
                 print(f"  Report: {j}")
             except Exception as exc:
                 print(f"  WARNING: Could not write report: {exc}")
+        print(f"DRY-RUN complete ({duration}s). No data written.")
         return 0
 
+    # -- Initialise embedding provider (live run only) --------------------
+    print(f"  Initialising embedding provider '{settings.embedding_provider}' ...")
     try:
+        from app.rag.embeddings import get_embedding_provider
+        embedder = get_embedding_provider(
+            provider=settings.embedding_provider,
+            model_name=settings.embedding_model,
+            dimension=settings.embedding_dimension,
+        )
+    except Exception as exc:
+        print(f"ERROR initialising embedder: {exc}", file=sys.stderr)
+        return 1
+
+    # -- Connect to Qdrant ------------------------------------------------
+    print(f"  Connecting to Qdrant: collection='{collection}' ...")
+    try:
+        from app.rag.vector_store import VectorStore
         store = VectorStore(
             url=settings.qdrant_url,
             collection_name=collection,
@@ -248,11 +242,12 @@ def ingest(
         print(f"ERROR connecting to Qdrant: {exc}", file=sys.stderr)
         return 1
 
-    # ── Fetch existing hashes for idempotency ─────────────────────────────────
+    # -- Fetch existing hashes for idempotency ----------------------------
     existing_hashes = _fetch_existing_hashes(store, collection)
     print(f"  Found {len(existing_hashes)} existing records in collection.")
 
-    # ── Batch ingestion ────────────────────────────────────────────────────────
+    # -- Batch ingestion --------------------------------------------------
+    total = len(records)
     added = updated = unchanged = failed = rejected = 0
     pipeline_version = "phase2-v1"
 
@@ -282,19 +277,20 @@ def ingest(
                     all_records=normalized,
                 )
             except DocumentBuildError as exc:
-                print(f"  ✗  Document build failed for {rec_id!r}: {exc}", file=sys.stderr)
+                print(f"  ERR: Document build failed for {rec_id!r}: {exc}",
+                      file=sys.stderr)
                 failed += 1
                 continue
 
-            # Enrich payload with pipeline metadata.
             rec["schema_version"] = 2
             rec["pipeline_version"] = pipeline_version
             rec["embedding_model"] = settings.embedding_model
             rec["embedding_provider"] = settings.embedding_provider
             rec["embedding_dimension"] = settings.embedding_dimension
             rec["document_strategy"] = document_strategy
-            rec["is_demo"] = rec.get("copyright_status") == "DEMO_DATA_NOT_FOR_PRODUCTION"
-
+            rec["is_demo"] = (
+                rec.get("copyright_status") == "DEMO_DATA_NOT_FOR_PRODUCTION"
+            )
             to_upsert_records.append(rec)
             to_upsert_texts.append(doc_text)
 
@@ -303,16 +299,15 @@ def ingest(
 
         try:
             vectors = embedder.embed_texts(to_upsert_texts)
-            # Use stable point IDs.
             store.upsert_records(to_upsert_records, vectors)
             b_num = start // batch_size + 1
-            print(f"  Batch {b_num}: +{added} added, ~{updated} updated, ={unchanged} unchanged so far.")
+            print(f"  Batch {b_num}: +{added} added, ~{updated} updated, "
+                  f"={unchanged} unchanged so far.")
         except Exception as exc:
-            print(f"  ✗  Batch starting {start} failed: {exc}", file=sys.stderr)
+            print(f"  ERR: Batch starting {start} failed: {exc}", file=sys.stderr)
             failed += len(to_upsert_records)
             added -= len(to_upsert_records)
 
-    total = len(records)
     duration = round(time.time() - t_start, 2)
     print(
         f"\nIngestion complete in {duration}s: "
@@ -356,9 +351,10 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, default=None)
     parser.add_argument("--profile", type=Path, default=None)
     parser.add_argument("--allow-demo", action="store_true", default=False)
-    parser.add_argument("--dry-run", action="store_true", default=False)
+    parser.add_argument("--dry-run", action="store_true", default=False,
+                        help="Validate and plan without writing or loading models.")
     parser.add_argument("--recreate", action="store_true", default=False,
-                        help="Delete and recreate the collection. DESTRUCTIVE. Requires explicit flag.")
+                        help="Delete and recreate collection. DESTRUCTIVE.")
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--strategy", default="translation",
                         choices=sorted(VALID_STRATEGIES),
