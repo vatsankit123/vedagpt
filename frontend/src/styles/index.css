@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body { @apply bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-50 font-sans antialiased; }
+  .focus-ring { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@layer components {
+  .card { @apply bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl shadow-sm; }
+  .btn-primary { @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-saffron-500 hover:bg-saffron-600 text-white font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-ring; }
+  .btn-secondary { @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-ring; }
+  .btn-ghost { @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 font-medium text-sm transition-colors focus-ring; }
+  .input-base { @apply w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-50 placeholder:text-stone-400 px-4 py-3 text-sm transition-colors focus-ring; }
+}
