@@ -457,3 +457,33 @@ Do not upload API keys, `.env` files, copyrighted scripture datasets, or private
 =======
 
 
+
+
+Here is a short slide-by-slide script that you can present comfortably within 1 to 2 minutes.
+
+Slide 1: Introduction
+
+“Good morning, I am Ankit Kumar. This is POC-07, an AI-powered Inventory Management System.
+ The application manages products, stock, suppliers, purchase orders, and dashboard analytics. It uses React, FastAPI, SQLAlchemy, and SQLite, with local AI capabilities powered by Ollama.”
+
+Slide 2: Problem, Solution and Impact
+
+“The main problem was fragmented inventory operations, manual policy searches, and delayed identification of low-stock situations.
+ The solution is a centralized inventory platform with secure APIs, role-based access, RAG-based policy assistance, and AI agents for live inventory operations.
+ The impact is faster access to information, consistent business processes, and a single source of truth for both users and AI components.”
+
+Slide 3: Project Architecture
+
+“The project follows a layered, API-first architecture.
+ React is the frontend, FastAPI provides secured REST APIs, and SQLAlchemy communicates with SQLite.
+ Phase 2 adds RAG for policy questions, Phase 3 adds a ReAct inventory agent, Phase 4 exposes operations through MCP tools, and Phase 5 uses LangGraph for multi-agent analysis.
+ Most importantly, the AI agents never access the database directly. They use the secured FastAPI APIs, so authentication, authorization, and business rules are always enforced.”
+
+Slide 4: Future Scope
+
+“The future scope includes migrating from SQLite to PostgreSQL, containerizing the application, and introducing predictive demand forecasting.
+ We can also add barcode scanning, mobile warehouse support, ERP integration, and stronger AI governance with human approval for critical actions.”
+
+Closing line
+
+“Overall, this project demonstrates how a traditional inventory system can be enhanced with secure and controlled agentic AI capabilities. Thank you.”
