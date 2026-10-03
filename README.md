@@ -496,48 +496,47 @@ prompt:
 
 
 
-Perform a read-only structural inspection of Discourse 1 from the Besant 1922 Wikisource edition.
+Capture and verify the printed-edition provenance for the Besant 1922 source.
 
-Source:
-https://en.wikisource.org/wiki/Bhagavad-Gita_(Besant_4th)/Discourse_1
+Use the Wikisource Index page or its linked scan for:
 
-This is an inspection-only task.
+Bhagavad-Gita (Besant 4th)
+
+This is an evidence-only task.
 
 Tasks:
 
-1. Open the Discourse 1 page in read-only mode.
-2. Verify whether the page visibly contains:
+1. Locate the source scan or Index page linked to the Besant fourth edition.
+2. Inspect only the title page, publication/imprint page, and edition-history page.
+3. Verify whether the scan visibly confirms:
+   - Work title
    - Sanskrit text in Devanagari
    - English translation
-   - Chapter or discourse number
-   - Individual verse numbers
-3. Check whether each Sanskrit verse can be reliably aligned with its English translation.
-4. Check for:
-   - Footnotes
-   - Editorial notes
-   - Publisher text
-   - Combined verse ranges
-   - Missing verse numbers
-   - Proofreading-status indicators
-   - Unicode or Devanagari display problems
-5. Capture only evidence necessary to demonstrate the page structure:
-   - permanent revision URL
-   - one readable screenshot
-   - a valid page-evidence PDF if reliable
+   - Annie Wood Besant as translator
+   - Fourth Edition
+   - Publication year 1922
+   - G. A. Natesan & Co., Madras
+4. Capture:
+   - Permanent source URL
+   - One or more readable screenshots
+   - A valid PDF containing only the relevant evidence pages, if practical
+   - Access timestamp
    - SHA-256 hashes
-6. Store the evidence inside:
+5. Store all new evidence inside:
 
-backend/data/staging/besant_1922/source_evidence/discourse_1/
+backend/data/staging/besant_1922/source_evidence/edition_provenance/
 
-Restrictions:
+6. Create a short Markdown provenance report that clearly separates:
+   - Facts verified from the printed scan
+   - Facts verified from Wikisource metadata
+   - Facts still pending
+7. Do not extract chapters or verses.
+8. Do not create corpus records.
+9. Do not alter Sanskrit or English text.
+10. Do not mark the source VERIFIED.
+11. Do not write anything to Qdrant.
+12. Do not inspect unrelated books or editions.
 
-- Do not extract the complete chapter.
-- Do not copy all verses into corpus JSON.
-- Do not inspect all 18 chapters yet.
-- Do not modify the source.
-- Do not create verified corpus records.
-- Do not mark the source VERIFIED.
-- Do not write anything to Qdrant.
-- Do not use Gemini to interpret or rewrite the text.
+Provide a short final provenance-readiness report listing all created files and SHA-256 hashes.
 
-Provide a short structural-readiness report stating whether Sanskrit and English can be reliably aligned by chapter and verse.
+If the scan or Index page cannot be accessed, report that limitation instead of inventing evidence.
