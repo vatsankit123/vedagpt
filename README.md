@@ -496,42 +496,181 @@ prompt:
 
 
 
-Validate the existing file:
+# ============================================================
+# VedaGPT .gitignore
+# ============================================================
 
-backend/data/staging/besant_1922/source_manifest.pending.json
+# ------------------------------------------------------------
+# Environment variables and secrets
+# ------------------------------------------------------------
+.env
+.env.*
+!.env.example
 
-using the actual Phase 2 SourceManifest Pydantic model from the application.
+backend/.env
+backend/.env.*
+!backend/.env.example
 
-This is a manifest-compatibility task only.
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
 
-Requirements:
+# API keys and credentials
+*.key
+*.pem
+credentials.json
+service-account.json
 
-1. Import and use the real SourceManifest model.
-2. Do not rely only on template-key comparison.
-3. Report all Pydantic validation errors.
-4. Check whether these values are schema-compatible:
-   - copyright_status
-   - language
-   - redistribution_permitted
-   - commercial_use_permitted
-   - modification_permitted
-   - verification_status
-   - additional extension fields
-5. Make only the minimum changes needed for model compatibility.
-6. Keep verification_status as PENDING.
-7. Keep verified_by and verified_date empty.
-8. Do not convert pending legal decisions into approved values.
-9. Compute and record the Discourse 18 evidence SHA-256 if its report exists locally.
-10. Preserve detailed evidence in extension fields only if the application model allows them.
-11. If extra fields are forbidden, move the detailed audit information into a separate companion file instead of deleting it.
-12. Run the real manifest validation again after corrections.
-13. Do not extract verses.
-14. Do not inspect additional chapters.
-15. Do not mark the source VERIFIED.
-16. Do not write anything to Qdrant.
+# ------------------------------------------------------------
+# Python virtual environments
+# ------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+backend/.venv/
 
-Report:
-- original validation errors,
-- files modified or created,
-- final model-validation result,
-- legal fields still awaiting project-owner approval.
+# ------------------------------------------------------------
+# Python generated files and caches
+# ------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.pyre/
+.pytype/
+.hypothesis/
+
+# Python package and build output
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ------------------------------------------------------------
+# Frontend dependencies and generated output
+# ------------------------------------------------------------
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/.vite/
+frontend/.turbo/
+frontend/*.log
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ------------------------------------------------------------
+# Local corpus source files and evidence
+# Never commit PDFs, screenshots, pending manifests, or drafts
+# ------------------------------------------------------------
+backend/data/staging/
+
+# Raw, normalized, extracted, and verified corpus files
+backend/data/*.raw.json
+backend/data/*.normalized.json
+backend/data/*.verified.json
+backend/data/*_draft.json
+backend/data/*.pending.json
+
+# Keep safe templates and demo/sample fixtures
+!backend/data/*.template.json
+!backend/data/*.sample.json
+!backend/data/*.p2demo.json
+
+# Local source documents
+backend/data/*.pdf
+backend/data/*.epub
+backend/data/*.djvu
+backend/data/*.doc
+backend/data/*.docx
+
+# ------------------------------------------------------------
+# Generated Phase 2 reports
+# ------------------------------------------------------------
+backend/reports/*.json
+backend/reports/*.md
+backend/reports/*.html
+backend/reports/*.csv
+
+# Preserve the reports directory in Git
+!backend/reports/.gitkeep
+
+# ------------------------------------------------------------
+# Qdrant local storage and logs
+# ------------------------------------------------------------
+qdrant_storage/
+backend/qdrant_storage/
+storage/
+snapshots/
+
+qdrant_err.txt
+qdrant_out.txt
+qdrant*.log
+
+# ------------------------------------------------------------
+# Application logs and temporary files
+# ------------------------------------------------------------
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+tmp/
+temp/
+.cache/
+
+# ------------------------------------------------------------
+# IDE and editor settings
+# ------------------------------------------------------------
+.vscode/
+.idea/
+*.code-workspace
+
+# Keep shared VS Code configuration only if added intentionally
+# !.vscode/extensions.json
+# !.vscode/settings.json
+
+# ------------------------------------------------------------
+# Operating system files
+# ------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ------------------------------------------------------------
+# Docker local overrides
+# ------------------------------------------------------------
+docker-compose.override.yml
+
+# ------------------------------------------------------------
+# Local project reports not intended for GitHub
+# ------------------------------------------------------------
+VEDAGPT_COMPLETE_PROJECT_REPORT.md
+VEDAGPT_COMPLETE_PROJECT_REPORT.pdf
