@@ -487,3 +487,55 @@ Slide 4: Future Scope
 Closing line
 
 “Overall, this project demonstrates how a traditional inventory system can be enhanced with secure and controlled agentic AI capabilities. Thank you.”
+
+
+
+prompt:
+
+
+
+
+
+The manually saved Besant source-page PDF is still being detected as corrupted.
+
+Resolve the source-evidence capture safely.
+
+Source page:
+https://en.wikisource.org/wiki/Bhagavad-Gita_(Besant_4th)
+
+Target directory:
+backend/data/staging/besant_1922/source_evidence
+
+Tasks:
+
+1. Open the source page in read-only mode.
+2. Do not extract the full book or any verses.
+3. Capture readable source evidence showing:
+   - Work title
+   - Annie Wood Besant as translator
+   - Fourth Edition
+   - Publication year 1922
+   - G. A. Natesan & Co., Madras
+   - Sanskrit text in Devanagari and English translation
+   - PD-old and PD-old-80-US rights tags
+4. Prefer creating:
+   - a UTF-8 text or Markdown evidence file containing the visible metadata,
+   - screenshots of the relevant metadata and rights sections,
+   - the permanent revision URL and access timestamp,
+   - SHA-256 hashes for all captured evidence files.
+5. If a valid PDF can be created using a browser automation or approved PDF-print method, create it and verify that it can be parsed afterward.
+6. If PDF creation remains unreliable, do not fabricate or repair PDF bytes. Use the text evidence and screenshots instead.
+7. Update license_evidence.txt only to add verified facts actually visible on the page.
+8. Clearly distinguish:
+   - facts verified from the page,
+   - facts recorded by the project owner,
+   - facts still pending verification.
+9. Do not modify or delete the original source_url.txt.
+10. Do not extract verses.
+11. Do not create corpus records.
+12. Do not mark the source VERIFIED.
+13. Do not ingest anything into Qdrant.
+14. Do not download unrelated content.
+15. Provide a short final evidence-readiness report listing every file created and its SHA-256 hash.
+
+If you cannot access the webpage from the current environment, stop and report that limitation instead of inventing evidence.
