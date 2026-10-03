@@ -496,47 +496,30 @@ prompt:
 
 
 
-Capture and verify the printed-edition provenance for the Besant 1922 source.
+Perform a lightweight read-only structural inspection of Discourse 18 from the Besant 1922 Wikisource edition.
 
-Use the Wikisource Index page or its linked scan for:
+Do not launch Chrome, Playwright, browser automation, screenshots, PDF generation, OCR, Gemini, or Qdrant.
 
-Bhagavad-Gita (Besant 4th)
+Inspect only the page markup or text response.
 
-This is an evidence-only task.
+Report:
 
-Tasks:
+1. Whether Sanskrit Devanagari text is present.
+2. Whether English translation is present.
+3. Sanskrit verse-number sequence.
+4. English verse-number sequence.
+5. Total Sanskrit and English verse counts.
+6. Missing, duplicate, combined, or conflicting verse numbers.
+7. Whether Sanskrit and English appear in consistent verse order.
+8. Footnotes or formatting anomalies.
+9. Unicode anomalies such as replacement characters, zero-width characters, or unusual danda markers.
+10. Whether the structure is suitable for deterministic extraction.
 
-1. Locate the source scan or Index page linked to the Besant fourth edition.
-2. Inspect only the title page, publication/imprint page, and edition-history page.
-3. Verify whether the scan visibly confirms:
-   - Work title
-   - Sanskrit text in Devanagari
-   - English translation
-   - Annie Wood Besant as translator
-   - Fourth Edition
-   - Publication year 1922
-   - G. A. Natesan & Co., Madras
-4. Capture:
-   - Permanent source URL
-   - One or more readable screenshots
-   - A valid PDF containing only the relevant evidence pages, if practical
-   - Access timestamp
-   - SHA-256 hashes
-5. Store all new evidence inside:
+Do not extract the complete chapter into a local corpus.
+Do not create evidence screenshots or PDFs.
+Do not create corpus JSON.
+Do not modify existing evidence files.
+Do not mark the source VERIFIED.
+Do not write to Qdrant.
 
-backend/data/staging/besant_1922/source_evidence/edition_provenance/
-
-6. Create a short Markdown provenance report that clearly separates:
-   - Facts verified from the printed scan
-   - Facts verified from Wikisource metadata
-   - Facts still pending
-7. Do not extract chapters or verses.
-8. Do not create corpus records.
-9. Do not alter Sanskrit or English text.
-10. Do not mark the source VERIFIED.
-11. Do not write anything to Qdrant.
-12. Do not inspect unrelated books or editions.
-
-Provide a short final provenance-readiness report listing all created files and SHA-256 hashes.
-
-If the scan or Index page cannot be accessed, report that limitation instead of inventing evidence.
+Keep the report short and do not create any new files.
