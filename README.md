@@ -496,45 +496,42 @@ prompt:
 
 
 
-Create a draft source manifest for the Besant 1922 Sanskrit and English source.
-
-Use only facts already verified in:
-
-backend/data/staging/besant_1922/source_evidence/
-
-Create:
+Validate the existing file:
 
 backend/data/staging/besant_1922/source_manifest.pending.json
 
+using the actual Phase 2 SourceManifest Pydantic model from the application.
+
+This is a manifest-compatibility task only.
+
 Requirements:
 
-1. Use the existing source_manifest.template.json schema.
-2. Record:
-   - source_id: besant-1922-fourth-edition
-   - title: The Bhagavad-Gita, or The Lord's Song
-   - translator: Annie Wood Besant
-   - edition: Fourth Edition
-   - publisher: G. A. Natesan & Co.
-   - publication year: 1922
-   - publication location: Madras
-   - languages: Sanskrit and English
-   - original language: Sanskrit
-   - source page URL
-   - permanent Wikisource revision URL
-   - Wikisource Index URL
-   - rights tags: PD-old and PD-old-80-US
-   - access date
-   - required attribution details
-3. Keep verification_status as PENDING.
-4. Do not set review_status to VERIFIED.
-5. Clearly record that legal/project-owner approval is pending.
-6. Record that Sanskrit and English extraction structure was checked using Discourses 1 and 18.
-7. Reference the existing evidence reports and SHA-256 manifests.
-8. Do not extract any verses.
-9. Do not create corpus records.
-10. Do not modify the existing evidence files.
-11. Do not write anything to Qdrant.
-12. Validate the draft against the existing source-manifest model.
-13. Report any fields that cannot be completed without project-owner approval.
+1. Import and use the real SourceManifest model.
+2. Do not rely only on template-key comparison.
+3. Report all Pydantic validation errors.
+4. Check whether these values are schema-compatible:
+   - copyright_status
+   - language
+   - redistribution_permitted
+   - commercial_use_permitted
+   - modification_permitted
+   - verification_status
+   - additional extension fields
+5. Make only the minimum changes needed for model compatibility.
+6. Keep verification_status as PENDING.
+7. Keep verified_by and verified_date empty.
+8. Do not convert pending legal decisions into approved values.
+9. Compute and record the Discourse 18 evidence SHA-256 if its report exists locally.
+10. Preserve detailed evidence in extension fields only if the application model allows them.
+11. If extra fields are forbidden, move the detailed audit information into a separate companion file instead of deleting it.
+12. Run the real manifest validation again after corrections.
+13. Do not extract verses.
+14. Do not inspect additional chapters.
+15. Do not mark the source VERIFIED.
+16. Do not write anything to Qdrant.
 
-Provide a short summary of the created manifest and validation result.
+Report:
+- original validation errors,
+- files modified or created,
+- final model-validation result,
+- legal fields still awaiting project-owner approval.
