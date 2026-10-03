@@ -496,46 +496,48 @@ prompt:
 
 
 
-The manually saved Besant source-page PDF is still being detected as corrupted.
+Perform a read-only structural inspection of Discourse 1 from the Besant 1922 Wikisource edition.
 
-Resolve the source-evidence capture safely.
+Source:
+https://en.wikisource.org/wiki/Bhagavad-Gita_(Besant_4th)/Discourse_1
 
-Source page:
-https://en.wikisource.org/wiki/Bhagavad-Gita_(Besant_4th)
-
-Target directory:
-backend/data/staging/besant_1922/source_evidence
+This is an inspection-only task.
 
 Tasks:
 
-1. Open the source page in read-only mode.
-2. Do not extract the full book or any verses.
-3. Capture readable source evidence showing:
-   - Work title
-   - Annie Wood Besant as translator
-   - Fourth Edition
-   - Publication year 1922
-   - G. A. Natesan & Co., Madras
-   - Sanskrit text in Devanagari and English translation
-   - PD-old and PD-old-80-US rights tags
-4. Prefer creating:
-   - a UTF-8 text or Markdown evidence file containing the visible metadata,
-   - screenshots of the relevant metadata and rights sections,
-   - the permanent revision URL and access timestamp,
-   - SHA-256 hashes for all captured evidence files.
-5. If a valid PDF can be created using a browser automation or approved PDF-print method, create it and verify that it can be parsed afterward.
-6. If PDF creation remains unreliable, do not fabricate or repair PDF bytes. Use the text evidence and screenshots instead.
-7. Update license_evidence.txt only to add verified facts actually visible on the page.
-8. Clearly distinguish:
-   - facts verified from the page,
-   - facts recorded by the project owner,
-   - facts still pending verification.
-9. Do not modify or delete the original source_url.txt.
-10. Do not extract verses.
-11. Do not create corpus records.
-12. Do not mark the source VERIFIED.
-13. Do not ingest anything into Qdrant.
-14. Do not download unrelated content.
-15. Provide a short final evidence-readiness report listing every file created and its SHA-256 hash.
+1. Open the Discourse 1 page in read-only mode.
+2. Verify whether the page visibly contains:
+   - Sanskrit text in Devanagari
+   - English translation
+   - Chapter or discourse number
+   - Individual verse numbers
+3. Check whether each Sanskrit verse can be reliably aligned with its English translation.
+4. Check for:
+   - Footnotes
+   - Editorial notes
+   - Publisher text
+   - Combined verse ranges
+   - Missing verse numbers
+   - Proofreading-status indicators
+   - Unicode or Devanagari display problems
+5. Capture only evidence necessary to demonstrate the page structure:
+   - permanent revision URL
+   - one readable screenshot
+   - a valid page-evidence PDF if reliable
+   - SHA-256 hashes
+6. Store the evidence inside:
 
-If you cannot access the webpage from the current environment, stop and report that limitation instead of inventing evidence.
+backend/data/staging/besant_1922/source_evidence/discourse_1/
+
+Restrictions:
+
+- Do not extract the complete chapter.
+- Do not copy all verses into corpus JSON.
+- Do not inspect all 18 chapters yet.
+- Do not modify the source.
+- Do not create verified corpus records.
+- Do not mark the source VERIFIED.
+- Do not write anything to Qdrant.
+- Do not use Gemini to interpret or rewrite the text.
+
+Provide a short structural-readiness report stating whether Sanskrit and English can be reliably aligned by chapter and verse.
