@@ -496,30 +496,45 @@ prompt:
 
 
 
-Perform a lightweight read-only structural inspection of Discourse 18 from the Besant 1922 Wikisource edition.
+Create a draft source manifest for the Besant 1922 Sanskrit and English source.
 
-Do not launch Chrome, Playwright, browser automation, screenshots, PDF generation, OCR, Gemini, or Qdrant.
+Use only facts already verified in:
 
-Inspect only the page markup or text response.
+backend/data/staging/besant_1922/source_evidence/
 
-Report:
+Create:
 
-1. Whether Sanskrit Devanagari text is present.
-2. Whether English translation is present.
-3. Sanskrit verse-number sequence.
-4. English verse-number sequence.
-5. Total Sanskrit and English verse counts.
-6. Missing, duplicate, combined, or conflicting verse numbers.
-7. Whether Sanskrit and English appear in consistent verse order.
-8. Footnotes or formatting anomalies.
-9. Unicode anomalies such as replacement characters, zero-width characters, or unusual danda markers.
-10. Whether the structure is suitable for deterministic extraction.
+backend/data/staging/besant_1922/source_manifest.pending.json
 
-Do not extract the complete chapter into a local corpus.
-Do not create evidence screenshots or PDFs.
-Do not create corpus JSON.
-Do not modify existing evidence files.
-Do not mark the source VERIFIED.
-Do not write to Qdrant.
+Requirements:
 
-Keep the report short and do not create any new files.
+1. Use the existing source_manifest.template.json schema.
+2. Record:
+   - source_id: besant-1922-fourth-edition
+   - title: The Bhagavad-Gita, or The Lord's Song
+   - translator: Annie Wood Besant
+   - edition: Fourth Edition
+   - publisher: G. A. Natesan & Co.
+   - publication year: 1922
+   - publication location: Madras
+   - languages: Sanskrit and English
+   - original language: Sanskrit
+   - source page URL
+   - permanent Wikisource revision URL
+   - Wikisource Index URL
+   - rights tags: PD-old and PD-old-80-US
+   - access date
+   - required attribution details
+3. Keep verification_status as PENDING.
+4. Do not set review_status to VERIFIED.
+5. Clearly record that legal/project-owner approval is pending.
+6. Record that Sanskrit and English extraction structure was checked using Discourses 1 and 18.
+7. Reference the existing evidence reports and SHA-256 manifests.
+8. Do not extract any verses.
+9. Do not create corpus records.
+10. Do not modify the existing evidence files.
+11. Do not write anything to Qdrant.
+12. Validate the draft against the existing source-manifest model.
+13. Report any fields that cannot be completed without project-owner approval.
+
+Provide a short summary of the created manifest and validation result.
