@@ -496,181 +496,44 @@ prompt:
 
 
 
-# ============================================================
-# VedaGPT .gitignore
-# ============================================================
+Resume the pending SourceManifest validation task.
 
-# ------------------------------------------------------------
-# Environment variables and secrets
-# ------------------------------------------------------------
-.env
-.env.*
-!.env.example
+The previous session ended immediately after running validate_pydantic_final.py.
 
-backend/.env
-backend/.env.*
-!backend/.env.example
+Tasks:
 
-frontend/.env
-frontend/.env.*
-!frontend/.env.example
+1. Show the actual final Pydantic validation result for:
 
-# API keys and credentials
-*.key
-*.pem
-credentials.json
-service-account.json
+backend/data/staging/besant_1922/source_manifest.pending.json
 
-# ------------------------------------------------------------
-# Python virtual environments
-# ------------------------------------------------------------
-.venv/
-venv/
-env/
-ENV/
-backend/.venv/
+2. Confirm that validation uses the real app.corpus.models.SourceManifest model.
 
-# ------------------------------------------------------------
-# Python generated files and caches
-# ------------------------------------------------------------
-__pycache__/
-*.py[cod]
-*$py.class
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
-.pyre/
-.pytype/
-.hypothesis/
+3. Verify that the Discourse 18 evidence file exists inside the project under:
 
-# Python package and build output
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+backend/data/staging/besant_1922/source_evidence/
 
-# ------------------------------------------------------------
-# Frontend dependencies and generated output
-# ------------------------------------------------------------
-frontend/node_modules/
-frontend/dist/
-frontend/coverage/
-frontend/.vite/
-frontend/.turbo/
-frontend/*.log
+4. Compute the SHA-256 from the project-local Discourse 18 evidence file, not from an Antigravity temporary or brain directory.
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+5. If the project-local Discourse 18 report does not exist, create a short local evidence report from the already completed inspection findings, without re-accessing the web or repeating the inspection.
 
-# ------------------------------------------------------------
-# Local corpus source files and evidence
-# Never commit PDFs, screenshots, pending manifests, or drafts
-# ------------------------------------------------------------
-backend/data/staging/
+6. Update the manifest hash only if necessary.
 
-# Raw, normalized, extracted, and verified corpus files
-backend/data/*.raw.json
-backend/data/*.normalized.json
-backend/data/*.verified.json
-backend/data/*_draft.json
-backend/data/*.pending.json
+7. Confirm these final values:
+   - copyright_status = UNVERIFIED
+   - redistribution_permitted = false
+   - commercial_use_permitted = false
+   - modification_permitted = false
+   - verification_status = PENDING
+   - verified_by is empty
+   - verified_date is empty
 
-# Keep safe templates and demo/sample fixtures
-!backend/data/*.template.json
-!backend/data/*.sample.json
-!backend/data/*.p2demo.json
+8. Confirm that false permission values mean not approved yet, not a final legal determination.
 
-# Local source documents
-backend/data/*.pdf
-backend/data/*.epub
-backend/data/*.djvu
-backend/data/*.doc
-backend/data/*.docx
+9. Report which extension fields are ignored by the Pydantic model.
 
-# ------------------------------------------------------------
-# Generated Phase 2 reports
-# ------------------------------------------------------------
-backend/reports/*.json
-backend/reports/*.md
-backend/reports/*.html
-backend/reports/*.csv
+10. Do not extract verses.
+11. Do not inspect more chapters.
+12. Do not mark the source VERIFIED.
+13. Do not write anything to Qdrant.
 
-# Preserve the reports directory in Git
-!backend/reports/.gitkeep
-
-# ------------------------------------------------------------
-# Qdrant local storage and logs
-# ------------------------------------------------------------
-qdrant_storage/
-backend/qdrant_storage/
-storage/
-snapshots/
-
-qdrant_err.txt
-qdrant_out.txt
-qdrant*.log
-
-# ------------------------------------------------------------
-# Application logs and temporary files
-# ------------------------------------------------------------
-*.log
-*.tmp
-*.temp
-*.bak
-*.swp
-*.swo
-*~
-
-tmp/
-temp/
-.cache/
-
-# ------------------------------------------------------------
-# IDE and editor settings
-# ------------------------------------------------------------
-.vscode/
-.idea/
-*.code-workspace
-
-# Keep shared VS Code configuration only if added intentionally
-# !.vscode/extensions.json
-# !.vscode/settings.json
-
-# ------------------------------------------------------------
-# Operating system files
-# ------------------------------------------------------------
-.DS_Store
-.AppleDouble
-.LSOverride
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# ------------------------------------------------------------
-# Docker local overrides
-# ------------------------------------------------------------
-docker-compose.override.yml
-
-# ------------------------------------------------------------
-# Local project reports not intended for GitHub
-# ------------------------------------------------------------
-VEDAGPT_COMPLETE_PROJECT_REPORT.md
-VEDAGPT_COMPLETE_PROJECT_REPORT.pdf
+Provide the final validation result and remaining pending approvals.
