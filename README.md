@@ -496,44 +496,109 @@ prompt:
 
 
 
-Resume the pending SourceManifest validation task.
+Begin the Hindi-source inspection for VedaGPT.
 
-The previous session ended immediately after running validate_pydantic_final.py.
+Candidate source:
+
+Title:
+Srimad Bhagavad Gita Bhavartha Translation by Gadadhar Singh
+
+Translator:
+Gadadhar Singh
+
+Publication year:
+1896
+
+Publisher:
+Chandraprabha Press, Benares
+
+Target local directory:
+
+backend/data/staging/hindi_gadadhar_1896/source_evidence
+
+This is a read-only source-discovery and inspection task.
 
 Tasks:
 
-1. Show the actual final Pydantic validation result for:
+1. Locate the corresponding Hindi Wikisource or Wikimedia Commons source page for:
+   "Srimad Bhagavad Gita Bhavartha Translation by Gadadhar Singh (1896)"
 
-backend/data/staging/besant_1922/source_manifest.pending.json
+2. Confirm that the located page refers to the correct work, translator, year, and publisher.
 
-2. Confirm that validation uses the real app.corpus.models.SourceManifest model.
+3. Inspect whether the source visibly contains:
+   - Hindi translation or bhavartha
+   - Sanskrit verses, if included
+   - Chapter numbers
+   - Verse numbers
+   - Commentary or explanatory text
+   - Footnotes, headers, page numbers, or publisher material
 
-3. Verify that the Discourse 18 evidence file exists inside the project under:
+4. Determine whether the Hindi content is:
+   - a direct verse-by-verse translation,
+   - a bhavartha or contextual interpretation,
+   - commentary,
+   - or a mixture of these.
 
-backend/data/staging/besant_1922/source_evidence/
+5. Inspect and record the exact work-specific rights or public-domain statement shown by the source page.
 
-4. Compute the SHA-256 from the project-local Discourse 18 evidence file, not from an Antigravity temporary or brain directory.
+6. Do not rely only on the general Wikisource copyright policy.
 
-5. If the project-local Discourse 18 report does not exist, create a short local evidence report from the already completed inspection findings, without re-accessing the web or repeating the inspection.
+7. Identify:
+   - permanent revision URL or page ID,
+   - source scan or Index page,
+   - edition and publication details,
+   - proofreading status,
+   - number of pages,
+   - extraction risks,
+   - whether the source appears suitable for verse-level alignment with the Besant 1922 Sanskrit-English source.
 
-6. Update the manifest hash only if necessary.
+8. Create the following directory if needed:
 
-7. Confirm these final values:
-   - copyright_status = UNVERIFIED
-   - redistribution_permitted = false
-   - commercial_use_permitted = false
-   - modification_permitted = false
-   - verification_status = PENDING
-   - verified_by is empty
-   - verified_date is empty
+backend/data/staging/hindi_gadadhar_1896/source_evidence
 
-8. Confirm that false permission values mean not approved yet, not a final legal determination.
+9. Create only these evidence files when the information is directly verified:
 
-9. Report which extension fields are ignored by the Pydantic model.
+- source_url.txt
+- license_evidence.txt
+- hindi_source_readiness_report.md
+- SHA256SUMS.txt
 
-10. Do not extract verses.
-11. Do not inspect more chapters.
-12. Do not mark the source VERIFIED.
-13. Do not write anything to Qdrant.
+10. If reliable evidence can be captured without destabilizing the environment, also save:
+- one screenshot showing edition/source metadata,
+- one screenshot showing the rights statement.
 
-Provide the final validation result and remaining pending approvals.
+11. Do not launch multiple browser-automation processes.
+12. Do not generate large PDFs.
+13. Do not download or extract the complete book.
+14. Do not copy all Hindi verses.
+15. Do not create corpus records.
+16. Do not create a verified source manifest.
+17. Do not mark the source VERIFIED.
+18. Do not write anything to Qdrant.
+19. Do not modify the Besant 1922 evidence.
+20. Do not use Gemini to rewrite or interpret the Hindi content.
+
+Stop and report instead of guessing if:
+- the exact source cannot be located,
+- the rights statement is unclear,
+- the publication details do not match,
+- or the Hindi text cannot be aligned by chapter and verse.
+
+Provide a concise final report containing:
+
+1. Exact source located
+2. Permanent source URL
+3. Verified bibliographic details
+4. Exact rights statement
+5. Content type: translation, bhavartha, commentary, or mixed
+6. Whether Sanskrit is also included
+7. Whether chapter and verse numbering is present
+8. Suitability for multilingual alignment
+9. Extraction risks
+10. Files created with SHA-256 hashes
+11. Final readiness status:
+   - SUITABLE FOR FURTHER STRUCTURAL INSPECTION
+   - NOT SUITABLE
+   - or MORE EVIDENCE REQUIRED
+
+Do not proceed beyond source inspection.
