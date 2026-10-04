@@ -496,109 +496,72 @@ prompt:
 
 
 
-Begin the Hindi-source inspection for VedaGPT.
+Inspect Shri Hari Gita as the next Hindi candidate for VedaGPT.
 
-Candidate source:
+Candidate:
 
 Title:
-Srimad Bhagavad Gita Bhavartha Translation by Gadadhar Singh
+Shri Hari Gita
 
 Translator:
-Gadadhar Singh
+Gitavachaspati Pandit Dinanath Bhargava "Dinesh"
 
-Publication year:
-1896
+Reported original source:
+Manav Dharam Karyalaya, approximately 1933
 
-Publisher:
-Chandraprabha Press, Benares
+Candidate digital reference:
+https://sanskritdocuments.org/doc_z_otherlang_hindi/harigita.html
 
-Target local directory:
+Target directory:
 
-backend/data/staging/hindi_gadadhar_1896/source_evidence
+backend/data/staging/hindi_harigita_1933/source_evidence
 
-This is a read-only source-discovery and inspection task.
+This is a source-discovery and rights-inspection task only.
 
 Tasks:
 
-1. Locate the corresponding Hindi Wikisource or Wikimedia Commons source page for:
-   "Srimad Bhagavad Gita Bhavartha Translation by Gadadhar Singh (1896)"
+1. Confirm the exact original title, translator, first publication year, publisher, and edition.
+2. Distinguish clearly between:
+   - copyright in the original Hindi translation,
+   - copyright or usage restrictions on the modern Sanskrit Documents transcription,
+   - rights attached to later printed editions or scans.
+3. Record the exact Sanskrit Documents usage statement.
+4. Do not assume that an old publication date automatically permits reuse.
+5. Do not assume that a website uploader owns the underlying translation.
+6. Search for an original or historical scan with identifiable publication data and work-specific rights evidence.
+7. Determine whether the Hindi translation is structured verse by verse.
+8. Check Chapter 1 and Chapter 18 only.
+9. Report:
+   - Hindi verse-number sequence,
+   - chapter and verse counts,
+   - missing or duplicate numbers,
+   - whether each Hindi record can be deterministically aligned with the Besant Sanskrit-English source,
+   - whether the translation combines verses,
+   - whether the text is poetic translation, literal translation, bhavartha, or commentary.
+10. Inspect whether Sanskrit verses are also included, but do not require them because Besant supplies Sanskrit.
+11. Identify transcription, OCR, Unicode, and proofreading risks.
+12. Create evidence files only for facts directly verified:
+   - source_url.txt
+   - license_evidence.txt
+   - hindi_source_readiness_report.md
+   - SHA256SUMS.txt
+13. Capture lightweight screenshots only if necessary.
+14. Do not launch multiple browser processes.
+15. Do not download or extract the complete work.
+16. Do not copy all verses.
+17. Do not create corpus records.
+18. Do not create a verified source manifest.
+19. Do not mark the source VERIFIED.
+20. Do not write anything to Qdrant.
+21. Do not modify the Gadadhar or Besant evidence.
 
-2. Confirm that the located page refers to the correct work, translator, year, and publisher.
+Final readiness must be one of:
 
-3. Inspect whether the source visibly contains:
-   - Hindi translation or bhavartha
-   - Sanskrit verses, if included
-   - Chapter numbers
-   - Verse numbers
-   - Commentary or explanatory text
-   - Footnotes, headers, page numbers, or publisher material
+- SUITABLE FOR STRUCTURAL USE, RIGHTS PENDING
+- SUITABLE AND RIGHTS EVIDENCE SUFFICIENT FOR OWNER REVIEW
+- NOT SUITABLE
+- MORE EVIDENCE REQUIRED
 
-4. Determine whether the Hindi content is:
-   - a direct verse-by-verse translation,
-   - a bhavartha or contextual interpretation,
-   - commentary,
-   - or a mixture of these.
+If the Sanskrit Documents transcription cannot legally be reused, investigate whether a separate public-domain scan can be extracted independently without copying the restricted transcription.
 
-5. Inspect and record the exact work-specific rights or public-domain statement shown by the source page.
-
-6. Do not rely only on the general Wikisource copyright policy.
-
-7. Identify:
-   - permanent revision URL or page ID,
-   - source scan or Index page,
-   - edition and publication details,
-   - proofreading status,
-   - number of pages,
-   - extraction risks,
-   - whether the source appears suitable for verse-level alignment with the Besant 1922 Sanskrit-English source.
-
-8. Create the following directory if needed:
-
-backend/data/staging/hindi_gadadhar_1896/source_evidence
-
-9. Create only these evidence files when the information is directly verified:
-
-- source_url.txt
-- license_evidence.txt
-- hindi_source_readiness_report.md
-- SHA256SUMS.txt
-
-10. If reliable evidence can be captured without destabilizing the environment, also save:
-- one screenshot showing edition/source metadata,
-- one screenshot showing the rights statement.
-
-11. Do not launch multiple browser-automation processes.
-12. Do not generate large PDFs.
-13. Do not download or extract the complete book.
-14. Do not copy all Hindi verses.
-15. Do not create corpus records.
-16. Do not create a verified source manifest.
-17. Do not mark the source VERIFIED.
-18. Do not write anything to Qdrant.
-19. Do not modify the Besant 1922 evidence.
-20. Do not use Gemini to rewrite or interpret the Hindi content.
-
-Stop and report instead of guessing if:
-- the exact source cannot be located,
-- the rights statement is unclear,
-- the publication details do not match,
-- or the Hindi text cannot be aligned by chapter and verse.
-
-Provide a concise final report containing:
-
-1. Exact source located
-2. Permanent source URL
-3. Verified bibliographic details
-4. Exact rights statement
-5. Content type: translation, bhavartha, commentary, or mixed
-6. Whether Sanskrit is also included
-7. Whether chapter and verse numbering is present
-8. Suitability for multilingual alignment
-9. Extraction risks
-10. Files created with SHA-256 hashes
-11. Final readiness status:
-   - SUITABLE FOR FURTHER STRUCTURAL INSPECTION
-   - NOT SUITABLE
-   - or MORE EVIDENCE REQUIRED
-
-Do not proceed beyond source inspection.
+Do not proceed beyond inspection.
